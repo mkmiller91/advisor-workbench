@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advisor Workbench</title>
+<style>
+:root{--ink:#14213d;--bg:#eef1f5;--card:#fff;--line:#d5dbe4;--g:#0f5c4d;--gold:#b08d3c;--mut:#5b6678;--bad:#a83232}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);display:flex;min-height:100vh}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:700;margin:0 0 .4em}
+nav{width:230px;background:var(--ink);color:#fff;padding:24px 14px;position:sticky;top:0;height:100vh;flex-shrink:0}
+nav b{font:700 20px Georgia,serif;display:block;padding:0 10px 4px}nav small{display:block;padding:0 10px 20px;color:#aab4c8}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;color:#d8deea;padding:10px 12px;font:inherit;cursor:pointer}
+nav button:hover{background:#1f3158}nav button.on{border-left-color:var(--gold);background:#1f3158;color:#fff}
+main{flex:1;padding:28px 34px;max-width:1100px}section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);padding:20px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label{display:block;font-size:13px;color:var(--mut)}input{width:100%;padding:8px;border:1px solid var(--line);font:inherit;margin-top:3px}
+input:focus,button:focus-visible{outline:2px solid var(--g);outline-offset:1px}
+.kpi{border-left:4px solid var(--g);padding:6px 12px;background:#f7f9fb}.kpi span{display:block;font-size:12px;color:var(--mut)}.kpi strong{font:700 22px Georgia,serif}
+.warn{border-left-color:var(--bad)}.note{color:var(--mut);font-size:13px}
+.t{border-bottom:1.5px dotted var(--g);color:var(--g);cursor:pointer;font-weight:600}.t:hover{background:#e3f0ec}
+#pop{position:fixed;display:none;z-index:9;width:330px;max-width:92vw;background:#fff;border:1px solid var(--ink);border-top:4px solid var(--gold);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+#pop h3{font-size:17px}#pop a{display:inline-block;margin:8px 8px 0 0;padding:6px 10px;background:var(--ink);color:#fff;text-decoration:none;font-size:13px}#pop a+a{background:var(--g)}
+#pop .x{float:right;cursor:pointer;border:0;background:none;font-size:18px}
+.res h3{font-size:18px;border-bottom:2px solid var(--gold);padding-bottom:3px;margin-top:18px}.res ul{padding-left:18px;margin:6px 0}.res .h{display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.gl input{margin-bottom:12px}.gl div{padding:9px 0;border-bottom:1px solid var(--line)}.gl b{color:var(--g)}
+svg{width:100%;height:220px;background:#f7f9fb;border:1px solid var(--line)}
+@media(max-width:760px){body{display:block}nav{width:auto;height:auto;position:static;display:flex;flex-wrap:wrap}nav small{display:none}nav button{width:auto}main{padding:16px}}
+</style></head><body>
+<nav><b>Advisor Workbench</b><small>Planning &amp; analysis toolkit</small>
+<button class="on" data-s="home">Overview</button><button data-s="fact">Fact Finder</button><button data-s="grow">Growth &amp; Retirement</button><button data-s="ana">Analytics</button><button data-s="gl">Glossary</button><button data-s="res">Credentials</button></nav>
+<main>
+<section id="home" class="on">
+<h1>Advisor Workbench</h1>
+<p class="g">A client-ready toolkit for <i>financial planning</i>: collect a client's full picture, project <i>compound growth</i> toward retirement, and test investments with risk metrics. Every dotted term explains itself in plain words; click it for the official definition.</p>
+<div class="grid">
+<div class="card"><h3>Fact Finder</h3><p class="g">Capture <i>net worth</i>, <i>cash flow</i>, <i>savings rate</i>, <i>emergency fund</i> and <i>debt-to-income</i> in one pass, with plain-language flags.</p></div>
+<div class="card"><h3>Growth &amp; Retirement</h3><p class="g">Project the <i>future value</i> of savings after <i>inflation</i> and fees, then test the <i>safe withdrawal rate</i> against a spending goal.</p></div>
+<div class="card"><h3>Analytics</h3><p class="g">Compute the <i>Sharpe ratio</i>, <i>amortization</i> payments, and <i>present value</i> of a stream of payments.</p></div>
+</div>
+<p class="note">Educational tool. Outputs are illustrative estimates, not investment, tax or legal advice. Nothing is stored or sent anywhere; all math runs on this computer.</p>
+</section>
+
+<section id="fact"><h1>Fact Finder</h1><p class="note">Enter monthly figures for income, expenses and debt payments; balances for everything else.</p>
+<div class="card"><h3>Assets</h3><div class="grid" id="fa"></div><h3 style="margin-top:14px">Liabilities</h3><div class="grid" id="fl"></div><h3 style="margin-top:14px">Monthly cash flow</h3><div class="grid" id="fc"></div></div>
+<div class="grid" id="fo"></div></section>
+
+<section id="grow"><h1>Growth &amp; Retirement</h1>
+<div class="card"><div class="grid" id="gi"></div></div>
+<div class="grid" id="go"></div><div class="card" style="margin-top:18px"><h3>Balance by year</h3><svg id="ch" viewBox="0 0 600 220" preserveAspectRatio="none"></svg><p class="note">Solid: nominal balance. Dashed: inflation-adjusted balance.</p></div></section>
+
+<section id="ana"><h1>Analytics</h1>
+<div class="card"><h3 class="g">Sharpe ratio</h3><div class="grid" id="si"></div><div class="grid" id="so" style="margin-top:12px"></div></div>
+<div class="card"><h3 class="g">Loan amortization</h3><div class="grid" id="li"></div><div class="grid" id="lo" style="margin-top:12px"></div></div>
+<div class="card"><h3 class="g">Present value of level payments</h3><div class="grid" id="pi"></div><div class="grid" id="po" style="margin-top:12px"></div></div></section>
+
+<section id="gl"><h1>Glossary</h1><div class="card gl"><input id="q" placeholder="Search terms..."><div id="gll"></div></div></section>
+
+<section id="res" class="res"><h1>Credentials</h1><div class="card">
+<h2>Michael Kenneth Miller</h2>
+<p>Springfield, PA &bull; (484)-326-8047 &bull; mkmiller@widener.edu &bull; www.linkedin.com/in/michael-miller06</p>
+<p class="g">Economics with specialization in financial services student at Widener University with a 3.5 GPA. A dedicated student-athlete and licensed Resident Producer seeking to apply a strong academic foundation to a professional business environment. Eager to learn from industry experts and contribute to a progressive organization's success.</p>
+<h3>Education</h3><div class="h"><span class="g">B.S. Candidate in Economics</span><span>May 2028</span></div>
+<ul class="g"><li>Specialization: Financial Services</li><li>Minors: Finance, Taxation</li><li>Widener University (Chester, PA) &mdash; GPA: 3.5</li><li>Related Coursework: Financial, Managerial, and Tax Accounting, Management, Microeconomics, Macroeconomics, Finance</li></ul>
+<h3>Relevant Experiences</h3>
+<div class="h"><span>EP Coastal Homes, Construction Management &amp; Site Operations Intern (Ocean City, NJ)</span><span>May 2026 &ndash; August 2026</span></div>
+<ul class="g"><li>Maintained high-standard site preparation protocols across luxury coastal residential projects, supporting luxury home builds for a premier regional developer.</li><li>Assisted multi-trade sub-contractors and lead builders in daily project execution, optimizing daily workflow and ensuring strict adherence to site safety standards.</li><li>Executed precise material staging, inventory loading, and tool distribution to minimize project downtime and streamline construction timelines.</li><li>Represented the brand with high professionalism while working on-site in high-end Ocean City neighborhoods, maintaining strong client relations and property care standards.</li><li>Exercised high adaptability in a dynamic, labor-intensive environment, efficiently pivoting between structural support, site cleanup, and vendor assistance.</li></ul>
+<div class="h"><span>Creative Financial Group, Financial Planning Micro-Intern (Remote)</span><span>May 2026</span></div>
+<ul class="g"><li>Analyzed core wealth management methodology, focusing on the client Fact Finder process to understand full-picture financial discovery and goal setting.</li><li>Evaluated advisor practice models, studying key strategies for targeted financial services marketing, team leverage, and client acquisition.</li><li>Examined firm operational frameworks, including the Success Pyramid, to gain insights into top-tier advisory performance drivers and firm growth metrics.</li><li>Engaged directly with experienced wealth advisors and firm leadership to study diverse career trajectories within high-volume financial services environments.</li></ul>
+<h3>Professional Experiences</h3>
+<div class="h"><span>McCullen Plumbing (Seasonal) (Galloway, NJ)</span><span>June 2024 &ndash; August 2025</span></div>
+<ul><li>Executed plumbing projects with attention to detail, receiving positive client feedback for quality service</li><li>Managed client relations and provided detailed project execution, resulting in positive feedback for service quality</li></ul>
+<div class="h"><span>Bobs Grill, Busboy (Seasonal) (Ocean City, NJ)</span><span>June 2025 &ndash; August 2025</span></div>
+<ul><li>Supported servers by clearing and resetting tables quickly to maintain efficient service flow</li><li>Practiced effective time management during peak hours to manage multiple tasks at once</li></ul>
+<h3>Certifications</h3>
+<ul class="g"><li>Microsoft Excel (Office 2019) &mdash; Completed April 2025</li><li>Resident Producer (Life and Fixed Annuities), PA Insurance Dept. (License #1300457) &mdash; 2026 &ndash; 2028</li><li>Bloomberg Market Concepts course completion &mdash; Completed April 2026</li></ul>
+<h3>Awards &amp; Extracurricular Activities</h3>
+<ul><li>Member of Widener Football team</li><li>2024 MAC Conference Academic Honor Roll</li><li>2025 College Sports Communicators Academic All-District team</li><li>2025 2nd Team All-Conference Defensive End</li><li>Member of Football Teams Leadership council</li></ul>
+</div></section>
+</main>
+<div id="pop"><button class="x" aria-label="Close">&times;</button><h3></h3><p></p><div></div></div>
+<script>
+// [Name, plain-English meaning, [text variants to auto-link], search term]
+const G=[
+["Financial Planning","A roadmap for your money goals: saving, investing, taxes, insurance and retirement.",["financial planning"],"financial planning"],
+["Financial Services","Businesses that handle money for others: banks, advisors, insurers and investment firms.",["financial services"],"financial services"],
+["Wealth Management","Advice and money management for people with significant savings, covering investing, taxes and estates.",["wealth management"],"wealth management"],
+["Economics","The study of how people and countries choose to use limited resources.",["economics"],"economics"],
+["Microeconomics","Economics of individual buyers, sellers and companies.",["microeconomics"],"microeconomics"],
+["Macroeconomics","Economics of whole economies: jobs, prices and growth.",["macroeconomics"],"macroeconomics"],
+["Finance","How money is raised, invested and managed over time.",["finance"],"finance"],
+["Financial Accounting","Recording and reporting a company's money results for outsiders like investors.",["financial, managerial, and tax accounting"],"financial accounting"],
+["Managerial Accounting","Using company numbers internally to make day-to-day decisions.",["managerial accounting"],"managerial accounting"],
+["Tax Accounting","Preparing and planning around taxes under tax law.",["tax accounting","taxation"],"tax accounting"],
+["Fact Finder","The questionnaire advisors use to learn a client's income, assets, debts and goals.",["fact finder"],"know your client"],
+["Client Acquisition","Winning new clients for a firm.",["client acquisition"],"customer acquisition cost"],
+["Success Pyramid","A firm-specific model ranking priorities that build an advisory practice; the idea resembles a goals hierarchy.",["success pyramid"],"financial planning process"],
+["Resident Producer","A state-licensed insurance salesperson who lives in that state.",["resident producer"],"insurance producer"],
+["Fixed Annuity","An insurance contract that pays a guaranteed interest rate or income.",["fixed annuities"],"fixed annuity"],
+["Bloomberg Market Concepts","Bloomberg's self-paced course on economics, currencies, bonds and equities, taught with the Bloomberg Terminal.",["bloomberg market concepts"],"bloomberg terminal"],
+["CFP","Certified Financial Planner: a professional credential for personal financial planners.",["cfp"],"certified financial planner"],
+["Inventory","Goods or materials a business holds for use or sale.",["inventory"],"inventory"],
+["Net Worth","Everything you own minus everything you owe.",["net worth"],"net worth"],
+["Cash Flow","Money coming in versus money going out.",["cash flow"],"cash flow"],
+["Savings Rate","The share of income you keep instead of spend.",["savings rate"],"savings rate"],
+["Emergency Fund","Cash set aside for surprises like job loss.",["emergency fund"],"emergency fund"],
+["Debt-to-Income","Monthly debt payments divided by monthly income; lenders use it to judge risk.",["debt-to-income"],"debt-to-income ratio"],
+["Compound Growth","Earnings that themselves earn more earnings over time.",["compound growth"],"compound interest"],
+["Future Value","What money today will be worth later at a given growth rate.",["future value"],"future value"],
+["Present Value","What future money is worth in today's dollars.",["present value"],"present value"],
+["Inflation","The general rise in prices that shrinks buying power.",["inflation"],"inflation"],
+["Safe Withdrawal Rate","The percent of savings you can spend yearly in retirement without likely running out.",["safe withdrawal rate"],"4% rule"],
+["Sharpe Ratio","Return earned per unit of risk taken; higher is better.",["sharpe ratio"],"sharpe ratio"],
+["Standard Deviation","How widely returns swing around their average; a common risk gauge.",["standard deviation"],"standard deviation"],
+["Risk-Free Rate","The return on a safe investment such as a short-term Treasury bill.",["risk-free rate"],"risk-free rate"],
+["Amortization","Paying off a loan in regular installments that cover interest and principal.",["amortization"],"amortization"],
+["Excel","Microsoft's spreadsheet program used for financial models.",["microsoft excel"],"spreadsheet"],
+["Asset Allocation","How a portfolio is split among stocks, bonds and cash.",["asset allocation"],"asset allocation"],
+["Expense Ratio","The yearly fee a fund charges, as a percent of your money.",["fees","fee"],"expense ratio"]
+];
+const M={},vs=[];G.forEach((g,i)=>g[2].forEach(v=>{M[v]=i;vs.push(v)}));
+const RX=new RegExp("\\b("+vs.sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","gi");
+const T=i=>`<span class="t" data-i="${i}" title="${G[i][1].replace(/"/g,"&quot;")}" tabindex="0" role="button">`;
+function gloss(el){el.innerHTML=el.innerHTML.replace(/(<[^>]+>)|([^<]+)/g,(m,tag,txt)=>tag||txt.replace(RX,w=>T(M[w.toLowerCase()])+w+"</span>"))}
+// italic marker <i> in overview = glossary term by name
+document.querySelectorAll("#home i").forEach(e=>{const k=Object.keys(M).find(v=>v==e.textContent.toLowerCase());if(k)e.outerHTML=T(M[k])+e.textContent+"</span>"});
+document.querySelectorAll(".g").forEach(e=>{if(!e.closest("#home")||!e.querySelector(".t"))gloss(e)});
+// popover
+const pop=document.getElementById("pop");
+function show(el){const g=G[el.dataset.i],r=el.getBoundingClientRect(),e=encodeURIComponent(g[3]);
+pop.querySelector("h3").textContent=g[0];pop.querySelector("p").innerHTML="<b>In plain words:</b> "+g[1];
+pop.querySelector("div").innerHTML=`<a target="_blank" rel="noopener" href="https://www.investopedia.com/search?q=${e}">Official definition: Investopedia</a><a target="_blank" rel="noopener" href="https://finance.yahoo.com/search?q=${e}">Yahoo Finance</a>`;
+pop.style.display="block";pop.style.left=Math.max(8,Math.min(r.left,innerWidth-pop.offsetWidth-8))+"px";pop.style.top=Math.min(r.bottom+6,innerHeight-pop.offsetHeight-8)+"px"}
+document.addEventListener("click",e=>{const t=e.target.closest(".t");if(t)show(t);else if(!e.target.closest("#pop")||e.target.closest(".x"))pop.style.display="none"});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")pop.style.display="none";if(e.key==="Enter"&&e.target.classList.contains("t"))show(e.target)});
+// nav
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button,section").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.getElementById(b.dataset.s).classList.add("on");pop.style.display="none"});
+// helpers
+const $=id=>document.getElementById(id),$$=(c,id)=>+$(id).value||0;
+const usd=n=>(n<0?"-":"")+"$"+Math.abs(Math.round(n)).toLocaleString(),pct=n=>(n*100).toFixed(1)+"%";
+function inputs(box,defs){$(box).innerHTML=defs.map(d=>`<label>${d[1]}<input id="${d[0]}" type="number" value="${d[2]}"></label>`).join("")}
+function kpis(box,arr){$(box).innerHTML=arr.map(k=>`<div class="kpi ${k[2]?"warn":""}"><span>${k[0]}</span><strong>${k[1]}</strong></div>`).join("")}
+function wire(ids,fn){ids.forEach(i=>$(i).oninput=fn);fn()}
+// Fact finder
+inputs("fa",[["a1","Cash &amp; savings",15000],["a2","Taxable investments",20000],["a3","Retirement accounts",40000],["a4","Home value",300000],["a5","Other assets",10000]]);
+inputs("fl",[["l1","Mortgage balance",220000],["l2","Student loans",20000],["l3","Auto &amp; credit cards",8000]]);
+inputs("fc",[["i1","Monthly take-home income",6000],["e1","Monthly expenses",4200],["d1","Monthly debt payments",1900],["g1","Gross monthly income",8000]]);
+const fids=["a1","a2","a3","a4","a5","l1","l2","l3","i1","e1","d1","g1"];
+wire(fids,()=>{const A=["a1","a2","a3","a4","a5"].reduce((s,i)=>s+$$(0,i),0),L=["l1","l2","l3"].reduce((s,i)=>s+$$(0,i),0),inc=$$(0,"i1"),ex=$$(0,"e1"),sr=inc?(inc-ex)/inc:0,em=ex?$$(0,"a1")/ex:0,dti=$$(0,"g1")?$$(0,"d1")/$$(0,"g1"):0;
+kpis("fo",[["Net worth",usd(A-L),A-L<0],["Total assets",usd(A)],["Total liabilities",usd(L)],["Monthly surplus",usd(inc-ex),inc<ex],["Savings rate",pct(sr),sr<.1],["Emergency fund (months of expenses)",em.toFixed(1),em<3],["Debt-to-income",pct(dti),dti>.36]]);
+const f=$("fo");f.insertAdjacentHTML("afterend","");
+});
+// Growth
+inputs("gi",[["g1s","Starting balance ($)",25000],["g2","Monthly contribution ($)",800],["g3","Expected return (%/yr)",7],["g4","Annual fee (%/yr)",0.5],["g5","Inflation (%/yr)",2.5],["g6","Years",30],["g7","Retirement spending, today's $/yr",60000],["g8","Withdrawal rate (%)",4]]);
+wire(["g1s","g2","g3","g4","g5","g6","g7","g8"],()=>{const P=$$(0,"g1s"),m=$$(0,"g2"),r=($$(0,"g3")-$$(0,"g4"))/100/12,inf=$$(0,"g5")/100,Y=Math.max(1,Math.min(60,$$(0,"g6")));
+let b=P,pts=[[0,P,P]];for(let y=1;y<=Y;y++){for(let k=0;k<12;k++)b=b*(1+r)+m;pts.push([y,b,b/Math.pow(1+inf,y)])}
+const real=b/Math.pow(1+inf,Y),inv=P+m*12*Y,need=$$(0,"g7")/($$(0,"g8")/100||1),ok=real>=need;
+kpis("go",[["Future value (nominal)",usd(b)],["Future value (today's dollars)",usd(real)],["Total contributed",usd(inv)],["Growth earned",usd(b-inv)],["Nest egg needed (today's $)",usd(need)],["Goal status",ok?"On track":"Short by "+usd(need-real),!ok]]);
+const mx=Math.max(...pts.map(p=>p[1])),X=y=>20+y/Y*560,Yp=v=>200-v/mx*180;
+$("ch").innerHTML=`<path d="M${pts.map(p=>X(p[0])+","+Yp(p[1])).join("L")}" fill="none" stroke="#0f5c4d" stroke-width="3"/><path d="M${pts.map(p=>X(p[0])+","+Yp(p[2])).join("L")}" fill="none" stroke="#b08d3c" stroke-width="3" stroke-dasharray="6 4"/><text x="22" y="14" font-size="12" fill="#5b6678">${usd(mx)}</text><text x="560" y="214" font-size="12" fill="#5b6678">Yr ${Y}</text>`});
+// Analytics
+inputs("si",[["s1","Portfolio return (%)",9],["s2","Risk-free rate (%)",4],["s3","Standard deviation (%)",12]]);
+wire(["s1","s2","s3"],()=>{const s=$$(0,"s3")?($$(0,"s1")-$$(0,"s2"))/$$(0,"s3"):0;kpis("so",[["Sharpe ratio",s.toFixed(2)],["Read",s>=1?"Strong risk-adjusted return":s>=.5?"Acceptable":"Weak for the risk taken",s<.5]])});
+inputs("li",[["n1","Loan amount ($)",250000],["n2","Interest rate (%)",6.5],["n3","Term (years)",30]]);
+wire(["n1","n2","n3"],()=>{const P=$$(0,"n1"),r=$$(0,"n2")/1200,n=$$(0,"n3")*12,p=r?P*r/(1-Math.pow(1+r,-n)):P/(n||1);kpis("lo",[["Monthly payment",usd(p)],["Total interest",usd(p*n-P)],["Total paid",usd(p*n)]])});
+inputs("pi",[["p1","Payment per year ($)",20000],["p2","Discount rate (%)",5],["p3","Years",20]]);
+wire(["p1","p2","p3"],()=>{const c=$$(0,"p1"),r=$$(0,"p2")/100,n=$$(0,"p3"),pv=r?c*(1-Math.pow(1+r,-n))/r:c*n;kpis("po",[["Present value",usd(pv)],["Undiscounted total",usd(c*n)]])});
+// Glossary
+function gl(f=""){$("gll").innerHTML=G.map((g,i)=>[g,i]).filter(([g])=>(g[0]+g[1]).toLowerCase().includes(f.toLowerCase())).sort((a,b)=>a[0][0].localeCompare(b[0][0])).map(([g,i])=>`<div>${T(i)}${g[0]}</span> &mdash; ${g[1]}</div>`).join("")}
+$("q").oninput=e=>gl(e.target.value);gl();
+</script></body></html>
